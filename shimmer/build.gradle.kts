@@ -1,5 +1,4 @@
 import com.vanniktech.maven.publish.SonatypeHost
-import java.util.Properties
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -11,19 +10,9 @@ plugins {
     alias(libs.plugins.mavenPublish)
 }
 
-val publishSecrets = rootProject.file("publishToMaven/secrets.properties")
-val publishSecretsProps = Properties()
-if (publishSecrets.exists()) {
-    publishSecrets.reader().use {
-        publishSecretsProps.load(it)
-        publishSecretsProps.forEach { k, v -> extra[k.toString()] = v.toString() }
-    }
-}
-
-val signWithSecrets = publishSecrets.exists() && (
-    !publishSecretsProps.getProperty("signing.secretKeyRingFile").isNullOrBlank() ||
-        !publishSecretsProps.getProperty("signingInMemoryKey").isNullOrBlank()
-    )
+val signWithSecrets =
+    !findProperty("signing.secretKeyRingFile")?.toString().isNullOrBlank() ||
+        !findProperty("signingInMemoryKey")?.toString().isNullOrBlank()
 
 kotlin {
     androidTarget {
