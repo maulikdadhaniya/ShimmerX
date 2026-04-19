@@ -6,18 +6,12 @@
 
 <p align="center"><strong>Smooth, theme-aware loading shimmer for Compose Multiplatform — one API across Android, iOS, Desktop, and Web.</strong></p>
 
-<p align="center">
-  <a href="https://github.com/maulikdadhaniya/ShimmerX">GitHub</a>
-</p>
-
 ---
 
-## Demo
-
 <p align="center">
-  <video src="asset/ShimmerX.mp4" controls width="520" playsinline>
-    Your browser does not support the video tag. <a href="asset/ShimmerX.mp4">Download the demo</a>.
-  </video>
+  <a href="https://raw.githubusercontent.com/maulikdadhaniya/ShimmerX/main/asset/ShimmerX.mp4">
+    🎥 Watch Demo
+  </a>
 </p>
 
 ---
@@ -139,4 +133,4 @@ On `Modifier.shimmerx`:
 
 ---
 
-<p align="center">Made by <strong>❤️Maulik Dadhaniya</strong></p>
+<p align="center">Made by <strong>❤️ Maulik Dadhaniya</strong></p>
