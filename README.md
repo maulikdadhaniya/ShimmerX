@@ -9,9 +9,7 @@
 ---
 
 <p align="center">
-  <a href="https://raw.githubusercontent.com/maulikdadhaniya/ShimmerX/main/asset/ShimmerX.mp4">
-    🎥 Watch Demo
-  </a>
+  <img src="https://raw.githubusercontent.com/maulikdadhaniya/ShimmerX/main/asset/ShimmerX.gif" width="520" />
 </p>
 
 ---
