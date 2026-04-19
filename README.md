@@ -8,42 +8,19 @@
 
 <p align="center">
   <a href="https://github.com/maulikdadhaniya/ShimmerX">GitHub</a>
-  ·
-  <a href="https://central.sonatype.com/">Maven Central</a>
 </p>
-
----
-
-## Screenshot
-
-<p align="center">
-  <img src="asset/ShimmerX.png" alt="ShimmerX preview — list and card placeholders" width="520" />
-</p>
-
-*Shimmer placeholders for lists, avatars, and actions — aligned with your `ColorScheme`.*
 
 ---
 
 ## Demo
 
 <p align="center">
-  <video src="asset/ShimmerX.mov" controls width="520" playsinline>
-    Your browser does not support the video tag. <a href="asset/ShimmerX.mov">Download the demo</a>.
+  <video src="asset/ShimmerX.mp4" controls width="520" playsinline>
+    Your browser does not support the video tag. <a href="asset/ShimmerX.mp4">Download the demo</a>.
   </video>
 </p>
 
 ---
-
-## Benefits
-
-- **Multiplatform** — Same API on Android, iOS, JVM (desktop), JS, and Wasm via Compose Multiplatform.
-- **Material 3 friendly** — Works inside `MaterialTheme`; shimmer light/dark follows surfaces and placeholders.
-- **Simple API** — `Modifier.shimmerx`, `ShimmerAppTheme`, plus helpers like `ShimmerCircle`, `ShimmerBlock`, `ShimmerTextLines`.
-- **Customizable** — Presets (`ShimmerDefaults`), color variants (Ocean, Sunset, Emerald, …), duration, angle, and per-widget overrides.
-- **One Maven coordinate** — Add a single dependency in `commonMain`; Gradle resolves platform artifacts for you.
-
----
-
 ## Setup
 
 ### From Maven Central
@@ -56,7 +33,7 @@ Add the published library (replace the version if you use a different release):
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation("io.github.maulikdadhaniya:shimmerx:1.0.1")
+            implementation("io.github.maulikdadhaniya:shimmerx:<LATEST_VERSION>")
         }
     }
 }
@@ -66,7 +43,7 @@ kotlin {
 
 ```kotlin
 dependencies {
-    implementation("io.github.maulikdadhaniya:shimmerx:1.0.1")
+    implementation("io.github.maulikdadhaniya:shimmerx:<LATEST_VERSION>")
 }
 ```
 
@@ -143,17 +120,6 @@ On `Modifier.shimmerx`:
 `ShimmerAppTheme` shares one `ShimmerState` across placeholders. Use **`useProviderProgress = false`** on a modifier for an independent animation.
 
 ---
-
-## Repository layout
-
-| Path | Role |
-|------|------|
-| `shimmerX/` | **Library** published to Maven Central (`com.maulik.shimmerx.shimmer`). |
-| `composeApp/` | Sample app demonstrating the API. |
-| `iosApp/` | iOS host for the sample. |
-
----
-
 ## Build and run the sample
 
 | Platform | Command |
@@ -173,4 +139,4 @@ On `Modifier.shimmerx`:
 
 ---
 
-<p align="center">Made by <strong>Maulik Dadhaniya</strong></p>
+<p align="center">Made by <strong>❤️Maulik Dadhaniya</strong></p>
