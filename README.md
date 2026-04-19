@@ -1,17 +1,88 @@
-# ShimmerX
+<p align="center">
+  <img src="asset/ShimmerX.png" alt="ShimmerX" width="480" />
+</p>
 
-Compose Multiplatform sample app with a reusable **shimmer** loading animation for **Android**, **iOS**, **Desktop (JVM)**, and **Web** (Kotlin/JS & Wasm).
+<h1 align="center">ShimmerX</h1>
 
-## Project layout
+<p align="center"><strong>Smooth, theme-aware loading shimmer for Compose Multiplatform — one API across Android, iOS, Desktop, and Web.</strong></p>
 
-- [`composeApp/src/commonMain`](./composeApp/src/commonMain/kotlin) — shared UI and shimmer (`com.maulik.shimmerx.shimmer`).
-- Platform-specific entry points: `androidMain`, `iosMain`, `jvmMain`, `jsMain`, `wasmJsMain`, `webMain`.
+<p align="center">
+  <a href="https://github.com/maulikdadhaniya/ShimmerX">GitHub</a>
+  ·
+  <a href="https://central.sonatype.com/">Maven Central</a>
+</p>
 
-## How to use the shimmer API
+---
 
-### 1. Wrap your screen with `ShimmerAppTheme`
+## Screenshot
 
-Place it **inside** `MaterialTheme { }` so shimmer light/dark matches your `ColorScheme` (surfaces and placeholders stay consistent on every platform).
+<p align="center">
+  <img src="asset/ShimmerX.png" alt="ShimmerX preview — list and card placeholders" width="520" />
+</p>
+
+*Shimmer placeholders for lists, avatars, and actions — aligned with your `ColorScheme`.*
+
+---
+
+## Demo
+
+<p align="center">
+  <video src="asset/ShimmerX.mov" controls width="520" playsinline>
+    Your browser does not support the video tag. <a href="asset/ShimmerX.mov">Download the demo</a>.
+  </video>
+</p>
+
+---
+
+## Benefits
+
+- **Multiplatform** — Same API on Android, iOS, JVM (desktop), JS, and Wasm via Compose Multiplatform.
+- **Material 3 friendly** — Works inside `MaterialTheme`; shimmer light/dark follows surfaces and placeholders.
+- **Simple API** — `Modifier.shimmerx`, `ShimmerAppTheme`, plus helpers like `ShimmerCircle`, `ShimmerBlock`, `ShimmerTextLines`.
+- **Customizable** — Presets (`ShimmerDefaults`), color variants (Ocean, Sunset, Emerald, …), duration, angle, and per-widget overrides.
+- **One Maven coordinate** — Add a single dependency in `commonMain`; Gradle resolves platform artifacts for you.
+
+---
+
+## Setup
+
+### From Maven Central
+
+Add the published library (replace the version if you use a different release):
+
+**Kotlin Multiplatform** — in your shared source set, e.g. `commonMain`:
+
+```kotlin
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation("io.github.maulikdadhaniya:shimmerx:1.0.1")
+        }
+    }
+}
+```
+
+**Android-only** module:
+
+```kotlin
+dependencies {
+    implementation("io.github.maulikdadhaniya:shimmerx:1.0.1")
+}
+```
+
+> Kotlin Multiplatform also publishes per-target Maven modules (e.g. `shimmerx-iosarm64`). You still declare **only** the line above; Gradle picks the right artifact per platform.
+
+### From this repository (sample + library sources)
+
+Clone the repo and open it in Android Studio or IntelliJ. The **library** lives in the **`shimmerX`** module; **`composeApp`** is a demo app.
+
+---
+
+## How to use?
+
+### 1. Wrap your UI with `ShimmerAppTheme`
+
+Place it **inside** `MaterialTheme { }` so shimmer matches your `ColorScheme`.
 
 ```kotlin
 MaterialTheme {
@@ -29,7 +100,7 @@ MaterialTheme {
 - **`ShimmerDefaults.Light` / `Dark`** — gradient presets and timing.
 - **`ShimmerAppearance`** — separate configs for light and dark UI.
 
-### 2. Add a base color, then `shimmerx`
+### 2. Base color + `shimmerx` modifier
 
 Typical pattern: `background(placeholderColor, shape)` then `Modifier.shimmerx(shape = shape)`.
 
@@ -44,11 +115,11 @@ Box(
 )
 ```
 
-Use **`shape`** that matches the background (e.g. `RoundedCornerShape(8.dp)` for rounded rects).
+Use a **`shape`** that matches the background (e.g. `RoundedCornerShape(8.dp)` for rounded rectangles).
 
 ### 3. Optional: `ShimmerCircle`, `ShimmerBlock`, `ShimmerTextLines`
 
-Helpers in `ShimmerPlaceholders.kt` wrap `ShimmerBox` + `shimmerx` for common skeletons:
+Helpers for common skeletons:
 
 ```kotlin
 ShimmerCircle(size = 52.dp, baseColor = base)
@@ -60,50 +131,38 @@ ShimmerBlock(
 ShimmerTextLines(lineCount = 3, baseColor = base, lastLineFraction = 0.6f)
 ```
 
-### 4. Per-widget overrides
+### 4. Overrides and shared animation
 
 On `Modifier.shimmerx`:
 
 - **`themeOverride`** — custom `ShimmerTheme` (colors, duration, angle).
 - **`colorVariant`** — `ShimmerColorVariant.Default`, `Dark`, `Ocean`, `Sunset`, `Emerald`.
-- **`colors`** — explicit list of gradient stops.
-- **`clip`** — clipping (often combined with `ShimmerConfig` from theme).
+- **`colors`** — explicit gradient stops.
+- **`clip`** — clipping with your shape.
 
-### 5. Shared animation (optional)
-
-`ShimmerAppTheme` provides a single `ShimmerState` so all `shimmerx` modifiers can share the same animation. Set **`useProviderProgress = false`** on a modifier to run its own independent animation.
+`ShimmerAppTheme` shares one `ShimmerState` across placeholders. Use **`useProviderProgress = false`** on a modifier for an independent animation.
 
 ---
 
-## Build and run
+## Repository layout
 
-### Android
+| Path | Role |
+|------|------|
+| `shimmerX/` | **Library** published to Maven Central (`com.maulik.shimmerx.shimmer`). |
+| `composeApp/` | Sample app demonstrating the API. |
+| `iosApp/` | iOS host for the sample. |
 
-```shell
-./gradlew :composeApp:assembleDebug
-```
+---
 
-### Desktop (JVM)
+## Build and run the sample
 
-```shell
-./gradlew :composeApp:run
-```
-
-### Web (Wasm — recommended)
-
-```shell
-./gradlew :composeApp:wasmJsBrowserDevelopmentRun
-```
-
-### Web (JS)
-
-```shell
-./gradlew :composeApp:jsBrowserDevelopmentRun
-```
-
-### iOS
-
-Open [`iosApp`](./iosApp) in Xcode and run, or use the IDE run configuration.
+| Platform | Command |
+|----------|---------|
+| Android | `./gradlew :composeApp:assembleDebug` |
+| Desktop (JVM) | `./gradlew :composeApp:run` |
+| Web (Wasm) | `./gradlew :composeApp:wasmJsBrowserDevelopmentRun` |
+| Web (JS) | `./gradlew :composeApp:jsBrowserDevelopmentRun` |
+| iOS | Open `iosApp` in Xcode and run. |
 
 ---
 
@@ -111,3 +170,7 @@ Open [`iosApp`](./iosApp) in Xcode and run, or use the IDE run configuration.
 
 - [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)
 - [Compose Multiplatform](https://github.com/JetBrains/compose-multiplatform)
+
+---
+
+<p align="center">Made by <strong>Maulik Dadhaniya</strong></p>

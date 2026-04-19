@@ -16,7 +16,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.foundation.background
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -32,6 +32,12 @@ import kotlin.math.pow
 import kotlin.math.sin
 
 private fun degreesToRadians(degrees: Double): Double = degrees * PI / 180.0
+
+/** How many identical color runs along the brush; translation by one segment length matches the next tile (no seam). */
+private const val SHIMMER_SPATIAL_PERIODS = 3
+
+private fun spatiallyTiledShimmerColors(base: List<Color>): List<Color> =
+    List(SHIMMER_SPATIAL_PERIODS) { base }.flatten()
 
 /** WCAG relative luminance (sRGB). */
 private fun Color.relativeLuminance(): Float {
@@ -157,23 +163,31 @@ class ShimmerState internal constructor(
 private val LocalShimmerState = compositionLocalOf<ShimmerState?> { null }
 private val LocalShimmerConfig = compositionLocalOf { ShimmerConfig() }
 
+/**
+ * Forward-only linear sweep 0→1 each cycle. The draw path uses a **spatially tiled** gradient so
+ * shifting by exactly one period realigns the pattern — no jump at [RepeatMode.Restart].
+ */
+@Composable
+private fun rememberSeamlessShimmerProgress(durationMillis: Int, enabled: Boolean): Float {
+    val transition = rememberInfiniteTransition(label = "shimmer_phase")
+    val animated by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis.coerceAtLeast(1), easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "shimmer_progress",
+    )
+    return if (enabled) animated else 0f
+}
+
 @Composable
 fun rememberShimmerState(
     theme: ShimmerTheme = ShimmerThemes.Default,
     enabled: Boolean = true,
 ): ShimmerState {
-    val transition = rememberInfiniteTransition(label = "shimmer_transition")
-    val animatedProgress by transition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(theme.durationMillis, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "shimmer_progress",
-    )
-
-    val progress = if (enabled) animatedProgress else 0f
+    val progress = rememberSeamlessShimmerProgress(theme.durationMillis, enabled)
     return remember(theme, progress) { ShimmerState(theme = theme, progress = progress) }
 }
 
@@ -268,16 +282,8 @@ fun Modifier.shimmerx(
     } else {
         baseTheme
     }
-    val localTransition = rememberInfiniteTransition(label = "shimmerx_local_transition")
-    val localProgress by localTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(theme.durationMillis, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "shimmerx_local_progress",
-    )
+    val needsLocalProgress = visible && (!resolvedUseProvider || shimmerState == null)
+    val localProgress = rememberSeamlessShimmerProgress(theme.durationMillis, needsLocalProgress)
 
     val progress = when {
         !visible -> 0f
@@ -285,19 +291,20 @@ fun Modifier.shimmerx(
         else -> localProgress
     }
 
-    val shimmerModifier = Modifier.drawWithCache {
-        val sizeHypot = hypot(size.width, size.height)
-        val travelDistance = sizeHypot * 2f
+    val shimmerModifier = Modifier.drawWithContent {
+        val sizeHypot = hypot(size.width, size.height).coerceAtLeast(1f)
+        val periodLength = sizeHypot * 2f
+        val gradientSpan = periodLength * SHIMMER_SPATIAL_PERIODS
+        val halfBand = gradientSpan / 2f
         val angleRadians = degreesToRadians(theme.angleInDegrees.toDouble())
         val directionX = cos(angleRadians).toFloat()
         val directionY = sin(angleRadians).toFloat()
 
-        val offset = (progress * travelDistance) - sizeHypot
+        val offset = (progress * periodLength) - (periodLength / 2f)
         val center = Offset(
             x = (size.width / 2f) + (directionX * offset),
             y = (size.height / 2f) + (directionY * offset),
         )
-        val halfBand = sizeHypot / 2f
         val start = Offset(
             x = center.x - (directionX * halfBand),
             y = center.y - (directionY * halfBand),
@@ -307,20 +314,18 @@ fun Modifier.shimmerx(
             y = center.y + (directionY * halfBand),
         )
         val brush = Brush.linearGradient(
-            colors = applyShimmerGradientWorkaround(theme.colors),
+            colors = spatiallyTiledShimmerColors(applyShimmerGradientWorkaround(theme.colors)),
             start = start,
             end = end,
         )
 
-        onDrawWithContent {
-            if (!visible) {
-                drawContent()
-                return@onDrawWithContent
-            }
-
+        if (!visible) {
             drawContent()
-            drawRect(brush = brush)
+            return@drawWithContent
         }
+
+        drawContent()
+        drawRect(brush = brush)
     }
 
     val resolvedClip = clip || appConfig.clip
